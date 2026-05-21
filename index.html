@@ -391,7 +391,13 @@ function openPanel(mes, rowEl){
   renderPanel(mes, resumo, txs);
 }
 
-function normMes(m){return (m||'').toLowerCase().replace(/\//g,'').replace(/\s/g,'')}
+function normMes(m){
+  if(!m) return '';
+  const MMAP={'janeiro':'jan','fevereiro':'fev','março':'mar','marco':'mar','abril':'abr','maio':'mai','junho':'jun','julho':'jul','agosto':'ago','setembro':'set','outubro':'out','novembro':'nov','dezembro':'dez'};
+  let s=(m+'').toLowerCase().replace(/\//g,'').replace(/\s/g,'');
+  Object.entries(MMAP).forEach(([full,abbr])=>{s=s.replace(full,abbr)});
+  return s;
+}
 
 function closePanel(){
   document.getElementById('sidePanel').classList.remove('open');
