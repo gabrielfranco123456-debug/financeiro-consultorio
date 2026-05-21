@@ -387,16 +387,34 @@ function openPanel(mes, rowEl){
   document.getElementById('main').classList.add('panel-open');
 
   const resumo=allData.resumo.find(d=>d.mes===mes);
-  const txs=allData.transacoes.filter(t=>t.mes===mes||normMes(t.mes)===normMes(mes));
+  const txs=allData.transacoes.filter(t=>normMes(t.mes)===normMes(mes)).map(t=>({...t,data:formatData(t.data)}));
   renderPanel(mes, resumo, txs);
 }
 
 function normMes(m){
   if(!m) return '';
-  const MMAP={'janeiro':'jan','fevereiro':'fev','março':'mar','marco':'mar','abril':'abr','maio':'mai','junho':'jun','julho':'jul','agosto':'ago','setembro':'set','outubro':'out','novembro':'nov','dezembro':'dez'};
+  const MMAP={'janeiro':'jan','fevereiro':'fev','março':'mar','marco':'mar','abril':'abr','maio':'mai','junho':'jun','julho':'jul','agosto':'ago','setembro':'set','outubro':'out','novembro':'nov','dezembro':'dez','jan':'jan','fev':'fev','mar':'mar','abr':'abr','mai':'mai','jun':'jun','jul':'jul','ago':'ago','set':'set','out':'out','nov':'nov','dez':'dez'};
   let s=(m+'').toLowerCase().replace(/\//g,'').replace(/\s/g,'');
-  Object.entries(MMAP).forEach(([full,abbr])=>{s=s.replace(full,abbr)});
+  // substitui nome completo por abreviação
+  Object.entries(MMAP).forEach(([full,abbr])=>{s=s.replace(new RegExp('^'+full,'i'),abbr)});
   return s;
+}
+
+function formatData(val){
+  if(!val) return '';
+  // se já é string simples tipo "01/04/2026", retorna
+  if(typeof val==='string' && val.match(/^\d{2}\/\d{2}\/\d{4}$/)) return val;
+  // se é timestamp ou Date string
+  try{
+    const d=new Date(val);
+    if(!isNaN(d.getTime())){
+      const dd=String(d.getDate()).padStart(2,'0');
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      const yyyy=d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+  }catch(e){}
+  return String(val);
 }
 
 function closePanel(){
